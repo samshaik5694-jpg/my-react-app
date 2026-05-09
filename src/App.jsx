@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import InterviewPrep from "./interviewData.jsx";
+import InterviewQuestions from "./interviewQuestions.jsx";
 
 const scenarios = [
   {
@@ -702,7 +703,21 @@ export default function App() {
                 border: `1px solid ${isActive ? "#0f172a" : "#2d3748"}`,
               })}
             >
-              Interview
+              Interview Vendor
+            </NavLink>
+            <NavLink
+              to="/questions"
+              style={({ isActive }) => ({
+                padding: "10px 16px",
+                borderRadius: "999px",
+                textDecoration: "none",
+                fontWeight: 700,
+                background: isActive ? "#0f172a" : "transparent",
+                color: isActive ? "#f1f5f9" : "#94a3b8",
+                border: `1px solid ${isActive ? "#0f172a" : "#2d3748"}`,
+              })}
+            >
+              400+ Questions
             </NavLink>
           </nav>
         </div>
@@ -710,6 +725,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/interview" element={<InterviewPrep />} />
+          <Route path="/questions" element={<InterviewQuestions />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </div>
