@@ -499,168 +499,19 @@ function CommandCard({ command, index }) {
 }
 
 export default function App() {
-  const [activeScenario, setActiveScenario] = useState(0);
-  const scenario = scenarios[activeScenario];
-
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "'Segoe UI', system-ui, sans-serif", background: "#0d1117", color: "#e2e8f0" }}>
-      {/* Sidebar */}
-      <div
-        style={{
-          width: "260px",
-          minWidth: "260px",
-          background: "#0a0e17",
-          borderRight: "1px solid #1e2535",
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div style={{ padding: "20px 18px 14px", borderBottom: "1px solid #1e2535" }}>
-          <div style={{ fontSize: "11px", fontWeight: "700", color: "#00d4ff", letterSpacing: "0.12em", marginBottom: "4px" }}>
-            CEPH / HYDRA
-          </div>
-          <div style={{ fontSize: "17px", fontWeight: "700", color: "#f1f5f9", lineHeight: "1.3" }}>
-            Knowledge Transfer
-          </div>
-          <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Click commands to expand ↓</div>
-        </div>
-
-        <div style={{ padding: "10px 8px", flex: 1 }}>
-          {scenarios.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setActiveScenario(s.id)}
-              style={{
-                width: "100%",
-                background: activeScenario === s.id ? "#1a2236" : "transparent",
-                border: activeScenario === s.id ? `1px solid ${s.color}22` : "1px solid transparent",
-                borderLeft: activeScenario === s.id ? `3px solid ${s.color}` : "3px solid transparent",
-                borderRadius: "7px",
-                padding: "10px 12px",
-                cursor: "pointer",
-                textAlign: "left",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginBottom: "3px",
-                transition: "all 0.15s ease",
-              }}
-            >
-              <span style={{ fontSize: "16px" }}>{s.icon}</span>
-              <div>
-                <div style={{ fontSize: "12px", fontWeight: "600", color: activeScenario === s.id ? "#f1f5f9" : "#94a3b8", lineHeight: "1.3" }}>
-                  {s.title}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div style={{ padding: "14px 18px", borderTop: "1px solid #1e2535" }}>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            {Object.entries(tagColors).map(([tag, c]) => (
-              <span key={tag} style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}`, borderRadius: "4px", fontSize: "10px", fontWeight: "700", padding: "2px 7px", letterSpacing: "0.07em" }}>
-                {tag}
-              </span>
-            ))}
-          </div>
-          <div style={{ fontSize: "10px", color: "#334155", marginTop: "6px" }}>Click any command to expand</div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
-        {/* Header */}
-        <div style={{ marginBottom: "28px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "10px" }}>
-            <span style={{ fontSize: "32px" }}>{scenario.icon}</span>
-            <div>
-              <div style={{ fontSize: "22px", fontWeight: "700", color: "#f1f5f9" }}>{scenario.title}</div>
-              <div
-                style={{
-                  fontSize: "13px",
-                  color: scenario.color,
-                  fontWeight: "500",
-                  marginTop: "3px",
-                }}
-              >
-                {scenario.description}
-              </div>
+    <div style={{ padding: '40px', backgroundColor: '#0f172a', color: 'white', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '40px' }}>Network Security Interview Scenarios</h1>
+      <div style={{ display: 'grid', gap: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+        {Scenarios.map((item) => (
+          <div key={item.id} style={{ borderLeft: `5px solid ${item.color}`, padding: '25px', borderRadius: '8px', background: '#1e293b', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+            <h2 style={{ color: item.color, marginTop: 0 }}>{item.title}</h2>
+            <p style={{ fontSize: '1.1rem', lineHeight: '1.6' }}><strong>Scenario:</strong> {item.description}</p>
+            <div style={{ background: '#0f172a', padding: '15px', borderRadius: '6px', marginTop: '15px', border: '1px solid #334155' }}>
+              <p style={{ fontStyle: 'italic', color: '#94a3b8', margin: 0, whiteSpace: 'pre-wrap' }}>{item.body}</p>
             </div>
           </div>
-
-          {/* Dependency chain callout */}
-          {scenario.id === 0 && (
-            <div style={{ background: "#0f172a", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "16px 20px", marginTop: "16px" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#74c0fc", letterSpacing: "0.1em", marginBottom: "10px" }}>⚡ THE GOLDEN RULE — DEPENDENCY CHAIN</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "13px", color: "#94a3b8", lineHeight: "2" }}>
-                <span style={{ color: "#ff6b6b" }}>Ceph MON/MDS</span>
-                <span style={{ color: "#475569" }}> → </span>
-                <span style={{ color: "#ffa94d" }}>CephFS Mount</span>
-                <span style={{ color: "#475569" }}> → </span>
-                <span style={{ color: "#69db7c" }}>pacemaker.path</span>
-                <span style={{ color: "#475569" }}> → </span>
-                <span style={{ color: "#cc5de8" }}>pacemaker.service</span>
-                <span style={{ color: "#475569" }}> → </span>
-                <span style={{ color: "#00d4ff" }}>Hydra VMs</span>
-              </div>
-              <div style={{ fontSize: "12px", color: "#64748b", marginTop: "8px" }}>
-                Break anything on the left → everything to the right goes dark.
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Concepts (Architecture page) */}
-        {scenario.concepts && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "16px", marginBottom: "28px" }}>
-            {scenario.concepts.map((c, i) => (
-              <div key={i} style={{ background: "#141824", border: "1px solid #1e2535", borderRadius: "10px", padding: "18px 20px" }}>
-                <div style={{ fontSize: "13px", fontWeight: "700", color: "#00d4ff", marginBottom: "10px" }}>{c.title}</div>
-                <p style={{ fontSize: "13px", color: "#94a3b8", lineHeight: "1.7", margin: 0, whiteSpace: "pre-line" }}>{c.body}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Commands */}
-        {scenario.commands && scenario.commands.length > 0 && (
-          <div>
-            <div style={{ fontSize: "11px", fontWeight: "700", color: "#475569", letterSpacing: "0.1em", marginBottom: "14px" }}>
-              COMMANDS — {scenario.commands.length} TOTAL
-            </div>
-            {scenario.commands.map((cmd, i) => (
-              <CommandCard key={i} command={cmd} index={i} />
-            ))}
-          </div>
-        )}
-
-        {/* NECLO timeline */}
-        {scenario.id === 8 && (
-          <div style={{ marginTop: "28px", background: "#0f172a", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "20px 24px" }}>
-            <div style={{ fontSize: "11px", fontWeight: "700", color: "#74c0fc", letterSpacing: "0.1em", marginBottom: "16px" }}>
-              📍 NECLO INCIDENT TIMELINE (V2174192255) — April 12, 2026
-            </div>
-            {[
-              "FIS rebooted neclo-q1s3 at ~2:03 PM EDT — OSDs 6/7/8 came back, Ceph began rebalancing",
-              "CephFS on q1s3 hung — MDS overloaded by rebalance I/O, virsh became unresponsive",
-              "VMs migrated from q1s3 → q1s4, overloading q1s4. q1s4 started flapping.",
-              "pacemaker.path failed — /mnt/cephfs/virtualmachines/ not accessible",
-              "ROOT CAUSE: iptables rules for q1s3 (10.58.30.63) MISSING on q1s1 and q1s2 → corosync split-brain",
-              "Split: (q1s1+q1s2) vs (q1s3+q1s4) — neither side had 3/4 votes → pacemaker stopped on BOTH sides",
-              "Fix: Added missing iptables rules → corosync reformed → 4 nodes, quorum → pacemaker started VMs",
-              "Applied Salt state to persist rules. Total outage: ~5 hours. With this SOP: ~15 minutes.",
-            ].map((step, i) => (
-              <div key={i} style={{ display: "flex", gap: "14px", marginBottom: "10px", alignItems: "flex-start" }}>
-                <div style={{ width: "22px", height: "22px", borderRadius: "50%", background: i === 4 ? "#ff6b6b22" : "#1e2535", border: `1px solid ${i === 4 ? "#ff6b6b" : "#334155"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", fontWeight: "700", color: i === 4 ? "#ff6b6b" : "#64748b", flexShrink: 0 }}>
-                  {i + 1}
-                </div>
-                <div style={{ fontSize: "13px", color: i === 4 ? "#fca5a5" : "#94a3b8", lineHeight: "1.6", paddingTop: "2px" }}>{step}</div>
-              </div>
-            ))}
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );
