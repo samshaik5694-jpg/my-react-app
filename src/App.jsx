@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import InterviewPrep from "./interviewData.jsx";
-import InterviewQuestions from "./interviewQuestions.jsx";
+import NetworkingQuestions from "./networkingQuestions.jsx";
 
 const scenarios = [
   {
@@ -725,7 +725,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/interview" element={<InterviewPrep />} />
-          <Route path="/questions" element={<InterviewQuestions />} />
+          <Route path="/questions" element={<NetworkingQuestions />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </div>
