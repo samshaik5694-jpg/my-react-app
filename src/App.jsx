@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import InterviewPrep from "./interviewData.jsx";
 
 const scenarios = [
   {
@@ -498,12 +500,12 @@ function CommandCard({ command, index }) {
   );
 }
 
-export default function App() {
+function HomePage() {
   const [activeScenario, setActiveScenario] = useState(0);
   const scenario = scenarios.find((s) => s.id === activeScenario) || scenarios[0];
 
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "'Segoe UI', system-ui, sans-serif", background: "#0d1117", color: "#e2e8f0" }}>
+    <div style={{ display: "flex", minHeight: "calc(100vh - 84px)", fontFamily: "'Segoe UI', system-ui, sans-serif", background: "#0d1117", color: "#e2e8f0" }}>
       {/* Sidebar */}
       <div
         style={{
@@ -659,5 +661,58 @@ export default function App() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div style={{ minHeight: "100vh", background: "#0d1117", color: "#e2e8f0" }}>
+        <div style={{ padding: "18px 28px", borderBottom: "1px solid #1e2535", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "16px" }}>
+          <div>
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "#00d4ff", letterSpacing: "0.12em", marginBottom: "4px" }}>CEPH / HYDRA</div>
+            <div style={{ fontSize: "24px", fontWeight: 700, color: "#f1f5f9" }}>Production App</div>
+          </div>
+
+          <nav style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <NavLink
+              to="/"
+              end
+              style={({ isActive }) => ({
+                padding: "10px 16px",
+                borderRadius: "999px",
+                textDecoration: "none",
+                fontWeight: 700,
+                background: isActive ? "#0f172a" : "transparent",
+                color: isActive ? "#f1f5f9" : "#94a3b8",
+                border: `1px solid ${isActive ? "#0f172a" : "#2d3748"}`,
+              })}
+            >
+              App
+            </NavLink>
+            <NavLink
+              to="/interview"
+              style={({ isActive }) => ({
+                padding: "10px 16px",
+                borderRadius: "999px",
+                textDecoration: "none",
+                fontWeight: 700,
+                background: isActive ? "#0f172a" : "transparent",
+                color: isActive ? "#f1f5f9" : "#94a3b8",
+                border: `1px solid ${isActive ? "#0f172a" : "#2d3748"}`,
+              })}
+            >
+              Interview
+            </NavLink>
+          </nav>
+        </div>
+
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/interview" element={<InterviewPrep />} />
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
