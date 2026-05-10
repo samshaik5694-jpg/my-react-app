@@ -731,5 +731,4 @@ export default function VendorInterviewQuestions() {
       </div>
     </div>
   );
-}</content>
-<parameter name="filePath">/Users/shaiksameer/my-react-app/src/vendorInterviewQuestions.jsx
+};
