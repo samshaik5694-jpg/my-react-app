@@ -1477,7 +1477,9 @@ const VendorInterviewQuestions = () => {
                       fontFamily: "monospace",
                       fontSize: "13px",
                       whiteSpace: "pre-wrap",
-                      overflowX: "auto"
+                      overflowX: "auto",
+                      color: "#111827",
+                      lineHeight: "1.6"
                     }}
                   >
                     {item.a}
