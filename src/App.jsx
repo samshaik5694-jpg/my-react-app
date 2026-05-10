@@ -717,7 +717,7 @@ export default function App() {
                 border: `1px solid ${isActive ? "#0f172a" : "#2d3748"}`,
               })}
             >
-              400+ Questions
+              220+ Questions
             </NavLink>
           </nav>
         </div>
