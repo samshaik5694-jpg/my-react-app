@@ -793,6 +793,473 @@ const INTERVIEW_CATEGORIES = [
       },
     ],
   },
+  {
+    id: "vendor-scenarios",
+    name: "Vendor Scenarios",
+    icon: "🛡️",
+    color: "#f97316",
+    questions: [
+      {
+        q: "How do you allow HTTPS to a DMZ web server on Cisco ASA?",
+        a: `Cisco ASA scenario: public web server in DMZ. Create a network object, static NAT, ACL, and apply the ACL inbound on outside.
+Commands:
+object network DMZ-WEB
+ host 10.1.1.100
+nat (dmz,outside) static 203.0.113.10
+access-list OUTSIDE_IN extended permit tcp any host 203.0.113.10 eq 443
+access-group OUTSIDE_IN in interface outside
+Validate with packet-tracer: packet-tracer input outside tcp 1.2.3.4 1024 203.0.113.10 443`,
+      },
+      {
+        q: "How do you configure a static NAT for a web server on FortiGate?",
+        a: `FortiGate scenario: inbound traffic to an internal web server.
+Commands:
+config firewall vip
+ edit "VIP-WebServer"
+  set extip 203.0.113.10
+  set mappedip 10.1.1.100
+  set extintf "wan1"
+  set portforward enable
+  set extport 443
+  set mappedport 443
+ next
+end
+config firewall policy
+ edit 10
+  set name "Allow-HTTPS-DMZ"
+  set srcintf "wan1"
+  set dstintf "dmz"
+  set srcaddr "all"
+  set dstaddr "VIP-WebServer"
+  set action accept
+  set schedule "always"
+  set service "HTTPS"
+  set logtraffic all
+ next
+end`,
+      },
+      {
+        q: "What command helps troubleshoot a FortiGate route-based IPsec tunnel?",
+        a: `FortiGate IPsec troubleshooting: confirm tunnel state and matching selectors.
+Commands:
+get vpn ipsec tunnel summary
+diagnose vpn tunnel list | grep VPN-TO-BRANCH
+get router info routing-table all | grep 10.0.2.0
+Use diagnose vpn ike log-filter dst-addr4 203.0.113.1 and diagnose debug application ike -1 for detailed logs.`,
+      },
+      {
+        q: "How do you allow AnyConnect VPN access on Cisco ASA?",
+        a: `Cisco ASA remote-access VPN: enable webvpn, configure pool, and define tunnel group.
+Commands:
+webvpn
+ enable outside
+exit
+ip local pool VPN-POOL 10.10.10.10-10.10.10.50 mask 255.255.255.0
+group-policy VPN-ANYCONNECT internal
+group-policy VPN-ANYCONNECT attributes
+ vpn-tunnel-protocol ssl-client
+exit
+tunnel-group VPN-POOL type remote-access
+tunnel-group VPN-POOL general-attributes
+ address-pool VPN-POOL
+ default-group-policy VPN-ANYCONNECT
+exit
+show vpn-sessiondb anyconnect`,
+      },
+      {
+        q: "What is the easiest way to validate FTD policy behavior?",
+        a: `Cisco FTD scenario: policy debugging before deployment.
+Commands:
+packet-tracer input inside tcp 10.1.1.10 1024 8.8.8.8 443 detail
+show access-control-config
+show conn count
+Use FMC Analysis > Connections to verify rule hit and blocked/dropped packets.`,
+      },
+      {
+        q: "How do you perform a security policy lookup on Cisco ASA?",
+        a: `Cisco ASA policy lookup: simulate traffic through the ASA engine.
+Command:
+packet-tracer input outside tcp 203.0.113.20 54512 10.1.1.100 443 detail
+It shows NAT, ACL, inspection and route decisions. This is critical when a rule seems correct but traffic is dropped.`,
+      },
+      {
+        q: "How do you create a Palo Alto security rule to allow HTTP to a DMZ server?",
+        a: `Palo Alto scenario: allow web access from untrust to dmz.
+Commands:
+set address DMZ-Web-Server ip-netmask 10.1.1.100/32
+set rulebase security rules Allow-HTTP-DMZ from untrust to dmz source any destination DMZ-Web-Server application web-browsing service service-tcp-80 action allow
+commit
+Then verify with show session all filter application eq web-browsing.`,
+      },
+      {
+        q: "How do you configure DNAT for a public VIP on Palo Alto?",
+        a: `Palo Alto NAT scenario: inbound service forwarding.
+Commands:
+set address VIP-WebServer ip-netmask 203.0.113.10/32
+set address DMZ-Web-Server ip-netmask 10.1.1.100/32
+set rulebase nat rules DNAT-WebServer from untrust to dmz source any destination VIP-WebServer service service-tcp-443 translated-address DMZ-Web-Server translated-port 443
+commit
+Then verify with show running security-policy and session.* filters.`,
+      },
+      {
+        q: "What is a good Palo Alto decryption policy for HTTPS inspection?",
+        a: `Palo Alto scenario: decrypt TLS to inspect web traffic.
+Commands:
+set decryption policy Decrypt-HTTPS from untrust to internet source any destination any service application any action decrypt
+commit
+Then monitor: show session all filter decrypted yes and check Traffic logs for decrypted HTTPS.`,
+      },
+      {
+        q: "How do you configure a Juniper SRX security zone policy from untrust to trust?",
+        a: `Juniper SRX firewall scenario: allow web traffic from internet to internal network.
+Commands:
+set security zones security-zone untrust interfaces ge-0/0/1.0
+set security zones security-zone trust interfaces ge-0/0/0.0
+set security policies from-zone untrust to-zone trust policy Allow-HTTP match source-address any destination-address DMZ-Web-Server application junos-http
+set security policies from-zone untrust to-zone trust policy Allow-HTTP then permit
+commit
+Then use show security policies to verify hits.`,
+      },
+      {
+        q: "How do you enable OSPF on a Juniper SRX interface?",
+        a: `Juniper SRX routing scenario: advertise a link into OSPF.
+Commands:
+set interfaces ge-0/0/0 unit 0 family inet address 10.0.1.1/24
+set protocols ospf area 0.0.0.0 interface ge-0/0/0.0
+commit
+Verify with show ospf neighbor and show ospf database.`,
+      },
+      {
+        q: "What is the Juniper SRX command to trace a firewall flow?",
+        a: `Juniper SRX troubleshooting scenario: use flow trace to see policy decisions.
+Commands:
+set security flow traceoptions file flow-trace
+set security flow traceoptions flag basic
+set security flow traceoptions packet-filter source-prefix 192.168.1.10 destination-prefix 8.8.8.8
+run show security flow session source-prefix 192.168.1.10 destination-prefix 8.8.8.8
+show security flow trace
+commit
+This shows exactly which policy and NAT rules matched.`,
+      },
+      {
+        q: "How do you configure a Juniper EX switch trunk with LACP?",
+        a: `Juniper EX switching scenario: connect a server or upstream switch.
+Commands:
+set interfaces ge-0/0/24 ether-options 802.3ad ae0
+set interfaces ge-0/0/23 ether-options 802.3ad ae0
+set interfaces ae0 aggregated-ether-options lacp active
+set interfaces ae0 unit 0 family ethernet-switching interface-mode trunk
+set interfaces ae0 unit 0 family ethernet-switching vlan members all
+commit
+Verify with show lacp interfaces and show interfaces ae0 extensive.`,
+      },
+      {
+        q: "How do you configure a Check Point rule to allow HTTP to a DMZ server?",
+        a: `Check Point scenario: use SmartConsole to build a rule.
+Steps:
+1. Create host object DMZ-Web-Server with IP 10.1.1.100
+2. Create service HTTP if not already present
+3. Add rule: Source Any, Destination DMZ-Web-Server, Service HTTP, Action Accept
+4. Install policy
+Then verify with fw monitor or SmartView Tracker.`,
+      },
+      {
+        q: "How do you configure a Check Point Auto-Rule for a server translation?",
+        a: `Check Point NAT scenario: use Auto-Rule for static NAT.
+Steps:
+1. In SmartConsole, create NAT rule in the NAT layer
+2. Source: DMZ-Web-Server, Original Destination: Any
+3. Translated Destination: 203.0.113.10
+4. Install policy
+Then validate with fw ctl zdebug and tcpdump on the gateway.`,
+      },
+      {
+        q: "How do you enable zone-based firewall on Cisco IOS XE?",
+        a: `Cisco IOS XE ZBFW scenario: segment traffic with zones.
+Commands:
+zone security INSIDE
+zone security OUTSIDE
+zone-pair security IN-TO-OUT source INSIDE destination OUTSIDE
+service-policy type inspect INSIDE-TO-OUT
+class-map type inspect match-any HTTP
+ match protocol http
+policy-map type inspect INSIDE-TO-OUT
+ class type inspect HTTP
+  inspect
+interface GigabitEthernet1
+ zone-member security INSIDE
+interface GigabitEthernet2
+ zone-member security OUTSIDE
+commit
+Use show zone-pair security to verify hits.`,
+      },
+      {
+        q: "How do you redistribute OSPF into BGP on Cisco IOS?",
+        a: `Cisco routing scenario: advertise OSPF-learned routes into BGP.
+Commands:
+router bgp 65001
+ neighbor 10.10.10.2 remote-as 65002
+ redistribute ospf 1
+exit
+router ospf 1
+ network 10.0.0.0 0.0.0.255 area 0
+exit
+Verify with show ip bgp and show ip bgp summary.`,
+      },
+      {
+        q: "How do you configure a Cisco Nexus SVI for VLAN 100?",
+        a: `Cisco Nexus switching scenario: provide L3 gateway for VLAN 100.
+Commands:
+interface vlan 100
+ no shutdown
+ ip address 10.100.100.1/24
+vlan 100
+ name CLIENTS
+exit
+Verify with show ip interface brief and show vlan id 100.`,
+      },
+      {
+        q: "How do you manage firewall policy hits and service groups on FortiGate?",
+        a: `FortiGate policy optimization scenario: use service groups for reuse.
+Commands:
+config firewall service custom
+ edit "WEB-PORTS"
+  set tcp-portrange 80 443
+ next
+end
+config firewall policy
+ edit 20
+  set name "Allow-Web-Clients"
+  set srcintf "internal"
+  set dstintf "dmz"
+  set srcaddr "all"
+  set dstaddr "DMZ-Web-Server"
+  set service "WEB-PORTS"
+  set action accept
+ next
+end
+Use get firewall policy and diagnose firewall iprope lookup to see matching policy.`,
+      },
+      {
+        q: "How do you apply an application override rule on Palo Alto?",
+        a: `Palo Alto app control scenario: allow a non-standard port app.
+Commands:
+set rulebase security rules Allow-DB from trust to dmz source any destination DB-Server application "ms-sql" service service-tcp-1433 action allow
+commit
+If the application is incorrectly identified, set application override or service application default.`,
+      },
+      {
+        q: "How do you configure a Juniper SRX active/passive chassis cluster?",
+        a: `Juniper HA scenario: configure redundancy for SRX.
+Commands:
+set chassis cluster cluster-id 1 node 0 reboot-priority 100
+set chassis cluster redundancy-group 1 node 0 priority 255
+set chassis cluster redundancy-group 1 node 1 priority 1
+set interfaces fxp0 unit 0 family inet address 192.168.100.1/24
+commit
+Verify with show chassis cluster status and show chassis cluster interfaces.`,
+      },
+      {
+        q: "How do you troubleshoot a blocked session on Palo Alto?",
+        a: `Palo Alto troubleshooting scenario: filter the Traffic log.
+Commands:
+show session all filter source 10.1.1.10 destination 203.0.113.10
+show running security-policy | match "Deny"
+Then inspect the Traffic log for rule name, application, and source/destination zones.`,
+      },
+      {
+        q: "How do you configure a SonicWall NAT policy to publish a web server?",
+        a: `SonicWall scenario: publish internal server with NAT and firewall access rule.
+Commands/UI Steps:
+1. Create address object: WebServer = 10.1.1.100
+2. Create NAT policy: Original Source Any, Translated Source Original, Original Destination WAN IP 203.0.113.10, Translated Destination WebServer, Service HTTP
+3. Add firewall rule: From WAN to LAN, Source Any, Destination WebServer, Service HTTP, Allow
+4. Apply changes
+Verify with Packet Monitor.`,
+      },
+      {
+        q: "How do you configure a Sophos XG NAT rule for remote access?",
+        a: `Sophos XG scenario: allow inbound HTTPS to a server.
+Commands/UI Steps:
+1. Create host definition for 10.1.1.100
+2. Create NAT rule: Source Any, Destination WAN IP, Services HTTPS, Translated Destination 10.1.1.100
+3. Create firewall rule: WAN to LAN, Source Any, Destination 10.1.1.100, Service HTTPS, Allow
+4. Activate and test
+Use system diagnostics log to confirm traffic hits the rule.`,
+      },
+      {
+        q: "How do you add a static route on HPE Aruba for a remote subnet?",
+        a: `Aruba routing scenario: connect a remote branch.
+Commands:
+ip route 10.2.0.0 255.255.0.0 192.168.1.1
+vlan 10
+ name "Branch-VLAN"
+ untagged 1
+ exit
+Verify with show ip route and show vlan 10.`,
+      },
+      {
+        q: "What command helps validate a Cisco ASA failover pair?",
+        a: `Cisco ASA HA scenario: check failover state and configuration sync.
+Commands:
+show failover
+show failover interface
+show running-config failover
+Use write standby to sync config from active to standby, and monitor failover history after a test switchover.`,
+      },
+      {
+        q: "How do you create a Check Point VPN remote-access user community?",
+        a: `Check Point remote access scenario: allow remote workers.
+Steps:
+1. Create user community in SmartConsole
+2. Assign Remote Access VPN properties
+3. Enable SmartEndpoint or Mobile Access portal
+4. Install policy
+Then verify with cpview and remote client connection logs.`,
+      },
+      {
+        q: "How do you configure a Palo Alto rule with a security profile package?",
+        a: `Palo Alto security hardening scenario: attach protections to a rule.
+Commands:
+set profiles security profile-group Web-Protections vulnerability default
+set profiles security profile-group Web-Protections spyware default
+set rulebase security rules Allow-Web profile-setting group Web-Protections
+commit
+This adds threat, URL filtering and antivirus scanning to the policy.`,
+      },
+      {
+        q: "How do you create a FortiGate policy that logs all traffic?",
+        a: `FortiGate logging scenario: ensure visibility for troubleshooting.
+Commands:
+config firewall policy
+ edit 30
+  set name "Log-All-Web"
+  set srcintf "internal"
+  set dstintf "dmz"
+  set srcaddr "all"
+  set dstaddr "DMZ-Web-Server"
+  set action accept
+  set service "HTTP"
+  set logtraffic all
+ next
+end
+Use diagnose log test and get log vpn to confirm entries.`,
+      },
+      {
+        q: "How do you use a Juniper SRX policy to inspect SSH traffic?",
+        a: `Juniper SRX inspection scenario: allow SSH and apply an application firewall rule.
+Commands:
+set security policies from-zone untrust to-zone trust policy Allow-SSH match source-address any destination-address SSH-Server application junos-ssh
+set security policies from-zone untrust to-zone trust policy Allow-SSH then permit
+commit
+Use show security policies hit-count and show security flow session to confirm the SSH session.`,
+      },
+      {
+        q: "How do you configure a Cisco IOS switch for dot1q trunking?",
+        a: `Cisco switch scenario: trunk VLANs between two switches.
+Commands:
+interface GigabitEthernet1/0/1
+ switchport mode trunk
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 1
+ switchport trunk allowed vlan 10,20,30
+exit
+Verify with show interfaces trunk and show vlan brief.`,
+      },
+      {
+        q: "How do you configure a Check Point cluster to synchronize state?",
+        a: `Check Point high-availability scenario: state synchronization across gateways.
+Steps:
+1. In SmartConsole, create ClusterXL with primary and secondary gateways
+2. Enable state synchronization settings
+3. Install policy
+4. On CLI, use cphaprob state and fw ctl pstat to verify
+This keeps connections active during failover.`,
+      },
+      {
+        q: "What command do you use on Cisco ASA to show NAT translations?",
+        a: `Cisco ASA NAT troubleshooting scenario: inspect translation table.
+Command:
+show xlate detail
+This shows active NAT entries and helps confirm whether a public connection is matching the expected static or dynamic NAT.`,
+      },
+      {
+        q: "How do you verify a Palo Alto security policy hit count?",
+        a: `Palo Alto verification scenario: check rule hits in the Traffic log.
+Commands:
+show running security-policy | match "Allow-HTTP-DMZ"
+show session all filter rule "Allow-HTTP-DMZ"
+Then use the web UI Monitor > Traffic and filter by rule name to confirm hit counts.`,
+      },
+      {
+        q: "How do you configure a Check Point rule to allow Microsoft 365 traffic?",
+        a: `Check Point cloud connectivity scenario: use service and application objects.
+Steps:
+1. Create application/site objects for Microsoft 365
+2. Add rule: Source Any, Destination Microsoft 365, Service Any, Action Accept
+3. Use HTTPS inspection if required
+4. Install policy
+Monitor SmartView Tracker for allowed traffic and any drops.`,
+      },
+      {
+        q: "How do you configure a FortiGate source NAT policy for internet access?",
+        a: `FortiGate outbound NAT scenario: enable NAT on the policy.
+Commands:
+config firewall policy
+ edit 40
+  set srcintf "internal"
+  set dstintf "wan1"
+  set srcaddr "all"
+  set dstaddr "all"
+  set action accept
+  set nat enable
+ next
+end
+Use diagnose firewall iprope lookup <src-ip> 8.8.8.8 6 12345 53 to verify policy selection.`,
+      },
+      {
+        q: "How do you create a Palo Alto application-based rule to allow Zoom?",
+        a: `Palo Alto application control scenario: allow traffic by application instead of port.
+Commands:
+set rulebase security rules Allow-Zoom from trust to untrust source any destination any application zoom action allow
+commit
+Then verify with show session all filter application eq zoom and use App-ID logs.`,
+      },
+      {
+        q: "How do you configure a Cisco Nexus port channel with VLAN tagging?",
+        a: `Nexus L2 scenario: connect a downstream switch or host.
+Commands:
+interface port-channel10
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30
+interface Ethernet1/1
+ channel-group 10 mode active
+interface Ethernet1/2
+ channel-group 10 mode active
+commit
+Verify with show port-channel summary and show interface port-channel10 trunk.`,
+      },
+      {
+        q: "How do you create a Palo Alto security profile for antivirus and WildFire?",
+        a: `Palo Alto protection scenario: attach a profile group to a security rule.
+Commands:
+set profiles antivirus profile AV-Profile action default
+set profiles wildfire profile WF-Profile action default
+set profiles security profile-group Secure-Web antivirus AV-Profile wildfire WF-Profile
+set rulebase security rules Allow-Web profile-setting group Secure-Web
+commit
+This inspects traffic and forwards unknown files for WildFire analysis.`,
+      },
+      {
+        q: "How do you add a dedicated management route on HPE Aruba?",
+        a: `Aruba management scenario: separate admin traffic.
+Commands:
+ip route 172.16.0.0 255.255.255.0 10.1.1.254
+ip route 0.0.0.0 0.0.0.0 10.1.1.1
+Verify with show ip route and ensure the management VLAN has the correct SVI.`,
+      },
+    ],
+  },
 ];
 
 export default function InterviewQuestions() {
@@ -1039,6 +1506,7 @@ export default function InterviewQuestions() {
                         fontSize: "13px",
                         color: "#cbd5e1",
                         lineHeight: "1.7",
+                        whiteSpace: "pre-wrap",
                       }}
                     >
                       {item.a}
