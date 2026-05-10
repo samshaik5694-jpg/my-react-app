@@ -7,60 +7,106 @@ const VENDOR_INTERVIEW_CATEGORIES = [
     icon: "🌐",
     color: "#3b82f6",
     questions: [
-      { q: "Configure OSPF with multi-area design", a: `**Real Scenario:** Enterprise network with 500+ users across multiple buildings requiring scalable OSPF design with proper area segmentation.
+      { q: "Configure OSPF with multi-area design", a: `**OSPF Multi-Area Design Interview Question:**
 
-**Cisco IOS Configuration:**
+**Question:** "Design and configure an OSPF network for a large enterprise with multiple buildings. Explain your area design choices and implement the configuration."
+
+**Detailed Answer:**
+
+**Understanding OSPF Areas:**
+OSPF uses a hierarchical design with areas to improve scalability and reduce routing table size. Area 0 (backbone) is mandatory and connects all other areas. Non-backbone areas (stub, totally stubby, NSSA) reduce LSA flooding and improve convergence.
+
+**Design Considerations:**
+- **Area 0 (Backbone):** All inter-area traffic flows through Area 0
+- **Stub Areas:** Block external routes (Type 5 LSAs), ABR injects default route
+- **Totally Stubby Areas:** Block external and inter-area routes, only default route from ABR
+- **NSSA Areas:** Allow ASBRs while blocking external routes from other areas
+
+**Real-World Scenario:**
+A company has headquarters (Area 0) with two branch offices (Area 1 and Area 2). Area 1 is a remote office with limited bandwidth, so we make it totally stubby to minimize routing updates.
+
+**Step-by-Step Configuration:**
+
+**1. Configure OSPF Process and Router ID:**
 \`\`\`
-! Enable OSPF process
-router ospf 1
- router-id 10.1.1.1
- log-adjacency-changes
- passive-interface default
- no passive-interface GigabitEthernet0/0
+Router(config)# router ospf 1
+Router(config-router)# router-id 10.1.1.1
+Router(config-router)# log-adjacency-changes
+\`\`\`
 
-! Configure backbone area (Area 0)
-interface GigabitEthernet0/0
- ip address 192.168.1.1 255.255.255.0
- ip ospf 1 area 0
- no shutdown
+**2. Configure Backbone Area (Area 0):**
+\`\`\`
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip address 192.168.1.1 255.255.255.0
+Router(config-if)# ip ospf 1 area 0
+Router(config-if)# no shutdown
+\`\`\`
 
-! Configure Area 1 (Branch Office)
-interface GigabitEthernet0/1
- ip address 10.1.1.1 255.255.255.0
- ip ospf 1 area 1
- no shutdown
+**3. Configure Branch Area (Area 1) as Totally Stubby:**
+\`\`\`
+Router(config)# interface GigabitEthernet0/1
+Router(config-if)# ip address 10.1.1.1 255.255.255.0
+Router(config-if)# ip ospf 1 area 1
+Router(config-if)# no shutdown
 
-! Area 1 as stub area to reduce LSA flooding
-area 1 stub no-summary
+Router(config)# router ospf 1
+Router(config-router)# area 1 stub no-summary
+\`\`\`
 
-! Redistribute connected routes
-redistribute connected subnets
+**4. Configure Passive Interfaces:**
+\`\`\`
+Router(config)# router ospf 1
+Router(config-router)# passive-interface default
+Router(config-router)# no passive-interface GigabitEthernet0/0
 \`\`\`
 
 **Verification Commands:**
 \`\`\`
 show ip ospf neighbor
 show ip ospf database
-show ip route ospf
 show ip ospf interface brief
+show ip route ospf
 \`\`\`
 
-**Troubleshooting Steps:**
-1. Check neighbor adjacency: \`show ip ospf neighbor\`
-2. Verify area configuration: \`show ip ospf interface\`
-3. Check for duplicate router-IDs: \`show ip ospf\`
-4. Verify MTU mismatch: \`show interface | include MTU\`
+**Troubleshooting Common Issues:**
+- **Neighbor Adjacency Problems:** Check MTU, authentication, network type
+- **Area Mismatch:** Ensure all routers in same area agree on area type
+- **DR Election Issues:** Check router priorities and interface states
 
 **Best Practices:**
-- Use loopback interfaces for router-ID stability
-- Configure passive interfaces on stub links
-- Implement area summarization to reduce routing table size
-- Use stub areas for branch offices to minimize LSA flooding` },
-      { q: "Troubleshoot BGP adjacency", a: `**Real Scenario:** ISP peering connection failing between two autonomous systems. Customer reports intermittent connectivity loss.
+- Use loopback interfaces for stable router IDs
+- Implement area summarization to reduce LSA flooding
+- Use totally stubby areas for branch offices
+- Monitor OSPF database size and convergence times` },
+      { q: "Troubleshoot BGP adjacency", a: `**BGP Adjacency Troubleshooting Interview Question:**
 
-**Step-by-Step Troubleshooting Process:**
+**Question:** "A BGP peering session between your router and an ISP is not establishing. Walk me through your systematic troubleshooting approach and resolution steps."
 
-**1. Check BGP Session Status:**
+**Detailed Answer:**
+
+**Understanding BGP Neighbor States:**
+BGP goes through several states during session establishment:
+- **Idle:** Initial state, waiting for start event
+- **Connect:** TCP connection being established
+- **Active:** TCP connection failed, listening for connection
+- **OpenSent:** Open message sent, waiting for reply
+- **OpenConfirm:** Open message received, waiting for keepalive
+- **Established:** Session fully established, exchanging routes
+
+**Common BGP Adjacency Issues:**
+1. **TCP Connectivity Problems** (most common)
+2. **AS Number Mismatch**
+3. **Authentication Failures**
+4. **TTL Security Issues**
+5. **MTU Mismatch**
+6. **Interface or Routing Problems**
+
+**Real-World Scenario:**
+Your company's edge router is trying to peer with ISP router 192.168.1.2. The session shows "Idle" state. Users report intermittent connectivity loss to internet resources.
+
+**Systematic Troubleshooting Process:**
+
+**Step 1: Check BGP Session Status**
 \`\`\`
 Router# show ip bgp summary
 BGP router identifier 10.1.1.1, local AS number 65001
@@ -70,160 +116,212 @@ Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
 192.168.1.2     4 65002       0       0        0    0    0 never    Idle
 \`\`\`
 
-**2. Verify Neighbor Configuration:**
+**Step 2: Verify IP Connectivity**
 \`\`\`
-Router# show ip bgp neighbors 192.168.1.2
-BGP neighbor is 192.168.1.2,  remote AS 65002, external link
-  BGP version 4, remote router ID 0.0.0.0
-  BGP state = Idle
-  Last read 00:00:00, last write 00:00:00, hold time is 180, keepalive interval is 60 seconds
-  Neighbor sessions:
-    0 active, is not multisession capable (disabled)
-  Neighbor capabilities:
-    Route refresh: advertised and received(new)
-    Address family IPv4 Unicast: advertised and received
+Router# ping 192.168.1.2 source 192.168.1.1
+Router# traceroute 192.168.1.2 source 192.168.1.1
+Router# show ip route 192.168.1.2
 \`\`\`
 
-**3. Common Issues and Solutions:**
-
-**Issue: TCP Connection Failed**
+**Step 3: Check BGP Neighbor Configuration**
 \`\`\`
-! Check IP reachability
-ping 192.168.1.2 source 192.168.1.1
-
-! Verify interface status
-show ip interface brief
-show interface GigabitEthernet0/0
-\`\`\`
-
-**Issue: BGP State Stuck in Active**
-\`\`\`
-! Check if neighbor is configured correctly
-show running-config | section bgp
-
-! Verify AS number mismatch
-neighbor 192.168.1.2 remote-as 65002  ! Must match remote AS
-\`\`\`
-
-**Issue: Authentication Failure**
-\`\`\`
-! Enable BGP authentication
-router bgp 65001
- neighbor 192.168.1.2 password MySecretPassword
-\`\`\`
-
-**4. Enable Debug for Detailed Analysis:**
-\`\`\`
-debug ip bgp
-debug ip tcp transactions
-debug ip bgp events
-\`\`\`
-
-**5. BGP Neighbor Configuration Template:**
-\`\`\`
+Router# show running-config | section router bgp
 router bgp 65001
  neighbor 192.168.1.2 remote-as 65002
- neighbor 192.168.1.2 description "ISP_PEERING_LINK"
- neighbor 192.168.1.2 password BGP_AUTH_KEY
- neighbor 192.168.1.2 timers 30 90
+ neighbor 192.168.1.2 password MySecretPassword
  neighbor 192.168.1.2 update-source Loopback0
  neighbor 192.168.1.2 ebgp-multihop 2
 \`\`\`
 
-**6. Verification After Fix:**
+**Step 4: Enable BGP Debugging**
 \`\`\`
-show ip bgp summary | include 192.168.1.2
-show ip bgp neighbors 192.168.1.2 | include BGP state
-show ip route bgp
-\`\`\`
-
-**Pro Tips:**
-- Always check physical connectivity first
-- Use loopback interfaces for stability
-- Implement MD5 authentication for security
-- Monitor BGP state changes with logging` },
-      { q: "Configure route filtering", a: `**Real Scenario:** Enterprise network needs to filter specific routes from ISP to prevent unwanted traffic and control routing table size.
-
-**Multiple Filtering Methods:**
-
-**Method 1: Prefix Lists (Recommended)**
-\`\`\`
-! Create prefix list to allow only specific networks
-ip prefix-list ALLOWED_ROUTES permit 10.0.0.0/8 le 24
-ip prefix-list ALLOWED_ROUTES permit 192.168.0.0/16 le 24
-ip prefix-list ALLOWED_ROUTES deny 0.0.0.0/0 le 32
-
-! Apply to BGP neighbor
-router bgp 65001
- neighbor 192.168.1.2 remote-as 65002
- neighbor 192.168.1.2 prefix-list ALLOWED_ROUTES in
+Router# debug ip bgp
+Router# debug ip tcp transactions
+Router# terminal monitor
 \`\`\`
 
-**Method 2: Route Maps with Multiple Conditions**
+**Step 5: Common Resolution Steps**
+
+**Issue: TCP Connection Failure**
 \`\`\`
-! Create route map for inbound filtering
-route-map FILTER_IN permit 10
- match ip address prefix-list ALLOWED_ROUTES
- match as-path 1
- set local-preference 200
+! Check if neighbor IP is reachable
+Router# show ip route 192.168.1.2
 
-route-map FILTER_IN permit 20
- match ip address prefix-list DEFAULT_ONLY
- set local-preference 100
+! Verify interface status
+Router# show interfaces GigabitEthernet0/0 | include line protocol
 
-route-map FILTER_IN deny 30
-
-! AS Path access list
-ip as-path access-list 1 permit ^65002$
-ip as-path access-list 1 deny .*
-
-! Apply route map
-router bgp 65001
- neighbor 192.168.1.2 route-map FILTER_IN in
+! Check for ACL blocking BGP (TCP 179)
+Router# show ip interface GigabitEthernet0/0 | include access
 \`\`\`
 
-**Method 3: Distribute Lists (Legacy)**
+**Issue: AS Number Mismatch**
 \`\`\`
-! Access list for route filtering
-access-list 10 permit 10.0.0.0 0.255.255.255
-access-list 10 permit 192.168.0.0 0.0.255.255
-access-list 10 deny any
+! Verify remote AS number
+Router# show running-config | include remote-as
 
-! Apply to OSPF neighbor
-router ospf 1
- distribute-list 10 in GigabitEthernet0/0
+! ISP confirms their AS number - update if wrong
+Router(config)# router bgp 65001
+Router(config-router)# neighbor 192.168.1.2 remote-as 65002
 \`\`\`
 
-**Method 4: Filter Lists (OSPF)**
+**Issue: Authentication Problems**
 \`\`\`
-! OSPF area filtering
-ip prefix-list OSPF_FILTER deny 172.16.0.0/16
-ip prefix-list OSPF_FILTER permit 0.0.0.0/0 le 32
+! Check if passwords match
+Router# show running-config | include password
 
-router ospf 1
- area 1 filter-list prefix OSPF_FILTER in
-\`\`\`
-
-**Verification Commands:**
-\`\`\`
-show ip prefix-list
-show route-map
-show ip bgp neighbors 192.168.1.2 routes
-show ip bgp regexp ^65002$
-show ip ospf database | include filter
+! Remove and re-add password
+Router(config)# router bgp 65001
+Router(config-router)# no neighbor 192.168.1.2 password
+Router(config-router)# neighbor 192.168.1.2 password NewSecurePassword
 \`\`\`
 
-**Common Issues:**
-- Prefix list sequence numbers matter
-- Route maps use implicit deny all
-- Filter direction (in/out) is crucial
-- Test filters before applying in production
+**Step 6: Verify After Resolution**
+\`\`\`
+Router# show ip bgp summary
+Router# show ip bgp neighbors 192.168.1.2
+Router# show ip route bgp
+\`\`\`
+
+**Advanced BGP Troubleshooting:**
+- **TTL Issues:** Use \`ebgp-multihop\` for non-directly connected peers
+- **Route-Map Problems:** Check for inbound route filtering
+- **BGP Scanner Issues:** Monitor CPU usage during route processing
+- **Memory Problems:** Check for BGP table size limits
+
+**Prevention Best Practices:**
+- Use loopback interfaces for BGP peering stability
+- Implement MD5 authentication on all eBGP sessions
+- Configure BGP route dampening to prevent route flaps
+- Monitor BGP session state with SNMP traps
+- Document all peering agreements and parameters` },
+      { q: "Configure route filtering", a: `**Route Filtering Interview Question:**
+
+**Question:** "Your company receives a full BGP routing table from the ISP, but you only want to accept routes for your organization's public IP space and major internet destinations. How would you implement route filtering to control what routes enter your network?"
+
+**Detailed Answer:**
+
+**Understanding Route Filtering Concepts:**
+Route filtering controls which routes are accepted, advertised, or redistributed between routing protocols. This prevents unwanted routes from entering your network, reduces routing table size, and improves security and performance.
+
+**Types of Route Filters:**
+- **Prefix Lists:** Filter based on IP address ranges and subnet masks
+- **Route Maps:** Complex filtering with multiple conditions and actions
+- **Access Lists:** Simple IP-based filtering (legacy)
+- **AS Path Filters:** Filter based on BGP AS path attributes
+- **Community Filters:** Filter based on BGP community values
+
+**Real-World Scenario:**
+Your enterprise has public IP space 203.0.113.0/24 and wants to accept only routes for major internet destinations (default route, major ISP routes) plus your own IP space from the ISP's BGP feed.
+
+**Implementation Strategy:**
+
+**Step 1: Analyze Current Routing Table**
+\`\`\`
+Router# show ip route summary
+Router# show ip bgp summary
+Router# show ip bgp neighbors 192.168.1.2 routes | head 20
+\`\`\`
+
+**Step 2: Create Prefix List for Allowed Routes**
+\`\`\`
+! Define allowed prefixes
+Router(config)# ip prefix-list ENTERPRISE_ROUTES permit 203.0.113.0/24
+Router(config)# ip prefix-list ENTERPRISE_ROUTES permit 203.0.113.0/24 le 32
+
+! Allow major internet routes (simplified example)
+Router(config)# ip prefix-list ENTERPRISE_ROUTES permit 8.8.0.0/16 le 24
+Router(config)# ip prefix-list ENTERPRISE_ROUTES permit 4.0.0.0/8 le 16
+
+! Default route
+Router(config)# ip prefix-list ENTERPRISE_ROUTES permit 0.0.0.0/0
+
+! Deny everything else
+Router(config)# ip prefix-list ENTERPRISE_ROUTES deny 0.0.0.0/0 le 32
+\`\`\`
+
+**Step 3: Create AS Path Filter (Optional)**
+\`\`\`
+! Only accept routes from your ISP's AS
+Router(config)# ip as-path access-list 10 permit ^65002$
+Router(config)# ip as-path access-list 10 permit ^65002_[0-9]*$
+
+! Deny routes with private AS numbers in path
+Router(config)# ip as-path access-list 10 deny _64512_
+Router(config)# ip as-path access-list 10 deny _65535_
+\`\`\`
+
+**Step 4: Create Route Map Combining Filters**
+\`\`\`
+! Create comprehensive route map
+Router(config)# route-map BGP_INBOUND_FILTER permit 10
+Router(config-route-map)# match ip address prefix-list ENTERPRISE_ROUTES
+Router(config-route-map)# match as-path 10
+Router(config-route-map)# set local-preference 200
+Router(config-route-map)# set community 65001:100
+
+Router(config)# route-map BGP_INBOUND_FILTER permit 20
+Router(config-route-map)# match ip address prefix-list DEFAULT_ROUTE
+Router(config-route-map)# set local-preference 50
+
+Router(config)# route-map BGP_INBOUND_FILTER deny 30
+\`\`\`
+
+**Step 5: Apply Filter to BGP Neighbor**
+\`\`\`
+Router(config)# router bgp 65001
+Router(config-router)# neighbor 192.168.1.2 route-map BGP_INBOUND_FILTER in
+Router(config-router)# neighbor 192.168.1.2 prefix-list ENTERPRISE_ROUTES in
+\`\`\`
+
+**Step 6: Verification and Testing**
+\`\`\`
+! Check what routes are being received
+Router# show ip bgp neighbors 192.168.1.2 routes | include 203.0.113
+
+! Verify route map application
+Router# show route-map BGP_INBOUND_FILTER
+
+! Check BGP table size reduction
+Router# show ip bgp summary
+Router# show ip route summary
+
+! Test specific route acceptance
+Router# show ip bgp regexp ^65002$
+\`\`\`
+
+**Common Filtering Issues and Solutions:**
+
+**Issue: Routes Still Appearing**
+\`\`\`
+! Check filter direction (in vs out)
+Router# show running-config | include route-map.*in
+
+! Verify prefix list syntax
+Router# show ip prefix-list ENTERPRISE_ROUTES
+\`\`\`
+
+**Issue: Too Restrictive Filtering**
+\`\`\`
+! Add more specific permits
+Router(config)# ip prefix-list ENTERPRISE_ROUTES permit 192.0.2.0/24
+
+! Use ge/le for more flexibility
+Router(config)# ip prefix-list ENTERPRISE_ROUTES permit 198.51.100.0/24 ge 25 le 28
+\`\`\`
+
+**Advanced Filtering Techniques:**
+- **Community-Based Filtering:** Use BGP communities to tag and filter routes
+- **Local Preference Manipulation:** Set different preferences for different route types
+- **BGP Soft Reset:** Apply filter changes without resetting BGP session
+- **Regular Expression Filters:** Complex AS path pattern matching
 
 **Best Practices:**
-- Use prefix lists for IP-based filtering
-- Route maps for complex policy routing
-- Test with "show ip bgp neighbors X routes" before applying
-- Document filter purposes and change history` },
+- Test filters in lab environment first
+- Use soft reconfiguration inbound to avoid session resets
+- Document all filter rules and their purposes
+- Monitor for legitimate routes being filtered accidentally
+- Regularly review and update filter lists as network grows
+- Implement logging for filtered routes` },
       { q: "Implement EIGRP load balancing", a: `**Real Scenario:** Enterprise WAN with multiple links to headquarters. Need to utilize all available bandwidth while maintaining redundancy.
 
 **EIGRP Load Balancing Configuration:**
