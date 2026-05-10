@@ -3,7 +3,7 @@ import { useState } from "react";
 const VENDOR_INTERVIEW_CATEGORIES = [
   {
     id: "routing",
-    name: "Routing Scenarios (170+ Q&A)",
+    name: "Routing Scenarios (77+ Q&A)",
     icon: "🌐",
     color: "#3b82f6",
     questions: [
@@ -628,7 +628,7 @@ router rip
   },
   {
     id: "switching",
-    name: "Switching Scenarios (170+ Q&A)",
+    name: "Switching Scenarios (77+ Q&A)",
     icon: "🔌",
     color: "#10b981",
     questions: [
@@ -984,7 +984,7 @@ show spanning-tree inconsistentports
   },
   {
     id: "firewall",
-    name: "Firewall Scenarios (160+ Q&A)",
+    name: "Firewall Scenarios (77+ Q&A)",
     icon: "🔒",
     color: "#ef4444",
     questions: [
