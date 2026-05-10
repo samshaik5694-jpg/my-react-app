@@ -609,6 +609,21 @@ router rip
       { q: "Implement BGP route dampening", a: "Suppress flapping routes to improve stability\nParameters: Half-life, reuse, suppress, max-suppress\nPrevents routing oscillation from affecting network" },
       { q: "Configure passive interfaces", a: "Prevent routing protocol traffic on specific interfaces\n'passive-interface default' then enable on needed links\nReduces unnecessary adjacencies" },
       { q: "Implement prefix-independent convergence", a: "Achieve fast convergence for all prefixes simultaneously\nNo per-prefix calculation\nRecent development in routing protocol optimization" },
+      { q: "OSPF area border router responsibilities", a: "Connect multiple areas\nFloods LSAs between areas\nSummarizes routes at area boundary\nGenerates Type 3 and Type 4 LSAs\nMaintains two OSPF processes or multi-area" },
+      { q: "BGP split horizon rule", a: "Router does not advertise route learned from neighbor back to that neighbor\nPrevents routing loops\nApplied in distance-vector protocols\nBGP uses path vector, not distance-vector" },
+      { q: "EIGRP reliable transport protocol", a: "Guarantees ordered delivery of updates\nUses acknowledgments\nRetransmits lost packets\nSeparate reliable and unreliable multicast\nEnsures convergence" },
+      { q: "Route flapping causes and effects", a: "Causes: unstable links, equipment failures, config changes\nEffects: CPU/memory spike, route oscillation, traffic loss\nMitigation: BGP dampening, fast hellos, proper MTU settings" },
+      { q: "ISIS metric types", a: "Internal metrics for IS-IS routes\nExternal metrics for imported routes\nWide metrics support up to 32 bits\nDefault metric 10 per interface" },
+      { q: "BGP ASN usage requirements", a: "Public ASN: ISP and public internet routes\nPrivate ASN: internal network use\nASN range 64512-65534 private\n16-bit and 32-bit ASN formats" },
+      { q: "OSPF demand circuit optimization", a: "Reduces link bandwidth consumption\nDisables periodic hello/update retransmission\nUsed on expensive WAN links\nRequires hello packet on demand" },
+      { q: "EIGRP DUAL algorithm", a: "Diffusing Update ALgorithm\nGuarantees loop-free paths\nComputes locally without flooding\nProvides fast convergence\nSupports unequal cost paths" },
+      { q: "BGP bestpath selection criteria", a: "Weight (Cisco proprietary) highest preferred\nLocal preference next\nAS path length\nOrigin type\nMED value\nIGP metric to BGP next-hop" },
+      { q: "Static routing use cases", a: "Point-to-point links\nSimple topologies\nStub networks\nBackup routes\nIncreases security vs dynamic protocols" },
+      { q: "Dynamic routing protocol convergence", a: "Convergence: network reaches consistent routing state\nFast convergence important for uptime\nOSPF: sub-second with OSPF fast hello\nBGP: slower, minutes typically" },
+      { q: "OSPF virtual link", a: "Connects discontiguous areas through backbone\nTransit area carries tunnel\nUseful for area restructuring\nShould be temporary solution" },
+      { q: "BGP communities usage", a: "Group prefixes for policies\nStandard communities 16-bit format\nExtended communities 32-bit format\nPublic vs private communities\nUsed for traffic engineering" },
+      { q: "Route redistribution administrative distance", a: "Modify AD of redistributed routes\nDefault varies by protocol\nIncreases AD to prefer IGP routes\nPrevents routing loops" },
+      { q: "EIGRP passive interface impact", a: "Advertises network without sending hello\nReduces bandwidth usage\nNo neighbor adjacency on interface\nUseful for stub links" },
     ]
   },
   {
@@ -950,6 +965,21 @@ show spanning-tree inconsistentports
       { q: "Configure IP SLA on switches", a: "Monitor link quality using IP SLA\nReaction to loss of connectivity\nIntegration with routing for failover\nGranular control over path selection" },
       { q: "Implement jumbo frames", a: "Support for frames larger than 1500 bytes\nReduces overhead\nNeed end-to-end support\nConfiguration: MTU size" },
       { q: "Configure switch QoS", a: "Mark traffic priority using cos (Class of Service)\nMap to DSCP\nQueue management and dropping policies\nPer-port and system-level configuration" },
+      { q: "STP port cost calculation", a: "Based on interface speed\nCisco: 100Mbps / interface speed\n10Mbps = 100, 100Mbps = 19, 1000Mbps = 4\nManually override with cost command" },
+      { q: "VLAN trunk allowed-vlan list", a: "Specifies which VLANs allowed on trunk\nAll VLANs by default\nCan exclude specific VLANs\nManage with switchport trunk allowed vlan" },
+      { q: "Native VLAN on trunk", a: "Default VLAN on trunk (untagged)\nBoth sides must match\nMismatch causes VLAN hopping vulnerability\nTypically VLAN 1 (should change)" },
+      { q: "Portfast and BPDU Guard", a: "Portfast skips STP states on access ports\nBPDU guard error-disables if BPDU received\nPrevents rogue switch connection\nShould be on access layer only" },
+      { q: "MAC address table aging", a: "Dynamic entries age out (default 300s)\nStatic entries don't age\nRe-learned if traffic reappears\nShorten for high-mobility environments" },
+      { q: "Private VLAN (pVLAN)", a: "Primary VLAN for community\nCommunity VLANs talk to primary\nIsolated VLANs only talk to promiscuous port\nUseful for multi-tenant security" },
+      { q: "VLAN access lists vs trunk lists", a: "VACL: filters traffic between VLANs\nTrunk list: specifies allowed VLANs on physical link\nDifferent purposes, often both configured" },
+      { q: "Spanning tree port states timeline", a: "Blocking (20 sec default) → Listening (15 sec) → Learning (15 sec) → Forwarding\nRSTP: disabled/discarding → learning → forwarding\nRSTP much faster convergence" },
+      { q: "EtherChannel load balancing algorithms", a: "Layer 2: src/dst MAC\nLayer 3: src/dst IP\nLayer 4: src/dst ports\nAlgorithm per-device, not per-flow" },
+      { q: "Storm control threshold", a: "Percentage of link bandwidth\nActions: shutdown (err-disable) or trap (SNMP)\nApplies to broadcast, multicast, unknown-unicast\nRecovery after timeout" },
+      { q: "DHCP snooping trusted vs untrusted", a: "Trusted: DHCP server ports\nUntrusted: client ports\nBindings built from untrusted\nOption 82 added for tracking" },
+      { q: "ARP inspection trusted database", a: "Built from DHCP snooping bindings\nValidates IP-to-MAC mapping\nBlocks unsolicited ARP replies\nProtects against ARP spoofing attacks" },
+      { q: "Port security sticky MAC", a: "Automatically learns secure MAC addresses\nConverts to permanent entry\nSurvives reboot if configured\nUseful for plug-and-play security" },
+      { q: "Switch CPU and backplane limits", a: "CPU handles management traffic\nBackplane (bus) handles data traffic\nBackplane limits switching capacity\nCPU impacts configuration processing" },
+      { q: "802.3ad LACP negotiation", a: "Active: initiates LACP negotiation\nPassive: responds to LACP\nMust have at least one active side\nSends LACP packets every second" },
     ]
   },
   {
@@ -1368,9 +1398,25 @@ ping -c 4 10.0.0.1  # Test through tunnel
       { q: "Configure VPN redundancy", a: "Multiple tunnel endpoints for failover\nLoad balancing across tunnels\nAutomatic failover on tunnel loss\nMonitoring for tunnel health" },
       { q: "Implement policy-based routing", a: "Route based on source, destination, application\nBypass firewall for trusted traffic\nLoad balancing across multiple paths\nFlexible traffic steering" },
       { q: "Configure firewall logging and alerts", a: "Log all connections or policy violations\nSyslog to central server\nReal-time alerts for suspicious activity\nCorrelation for attack detection" },
+      { q: "Firewall connection state table", a: "Tracks active connections\nInbound traffic matched to established connection\nStateless: only looks at packet headers\nStateful: maintains connection context" },
+      { q: "IPS vs IDS placement", a: "IPS: in-line, blocks traffic\nIDS: passive monitor, alerts only\nIPS requires rule tuning to avoid false positives\nIDS less risky but reactive" },
+      { q: "Firewall asymmetric routing", a: "Return traffic takes different path\nMust be allowed inbound\nTroubleshoot with packet trace\nCommon in multi-path networks" },
+      { q: "VPN tunnel rekey", a: "Session lifetime expired\nSecurity keys regenerated\nMake-before-break reduces downtime\nClient-initiated vs server-initiated" },
+      { q: "Firewall failover state sync", a: "Primary sends connection state to standby\nHeavy bandwidth usage\nEssential for stateful connections\nCan sync full or delta updates" },
+      { q: "Application identification (AppID)", a: "Deep packet inspection\nIdentifies app regardless of port\nUsed for policy enforcement\nAvoids port-based evasion" },
+      { q: "Zero trust security model", a: "Never trust, always verify\nDevice-based, not network-based\nUser identity important\nMicro segmentation at granular level" },
+      { q: "Firewall high availability active-active", a: "Both devices process traffic\nLoad balanced across devices\nBoth maintain session state\nComplexity vs active-passive tradeoff" },
+      { q: "SSL/TLS decryption exemptions", a: "Skip inspection for specific domains\nPerformance improvement\nPrivacy concerns\nRisk of encrypted malware" },
+      { q: "URL category updates", a: "Dynamic lists updated regularly\nNew domains categorized\nFalse positives possible\nCustom categories override default" },
+      { q: "Firewall rule tuning", a: "Monitor hit counts on rules\nRemove unused rules\nConsolidate overlapping rules\nImprove performance and clarity" },
+      { q: "DDoS protection mechanisms", a: "Rate limiting\nConnection limits\nBehavioral analysis\nSpoofing prevention\nSYN flood mitigation" },
+      { q: "Firewall logging volume", a: "All connections vs violations only\nStorage and performance impact\nCompromise: log critical + sample normal\nCentral logging aggregation" },
+      { q: "Threat intelligence integration", a: "Real-time feeds of malicious IPs\nURL reputation\nFile hash databases\nAutomatic policy enforcement" },
+      { q: "Firewall default rules", a: "Default deny most secure\nDefault allow most permissive\nExplicit rules must override defaults\nTesting mode for initial rollout" },
     ]
   }
 ];
+
 
 const VendorInterviewQuestions = () => {
   const [selectedCategory, setSelectedCategory] = useState("routing");
